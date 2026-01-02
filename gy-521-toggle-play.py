@@ -44,7 +44,6 @@ def detect_shake_and_toggle_play(threshold=SHAKE_THRESHOLD, sleeptime=DETECTION_
     magnitude = math.sqrt(accel['x']**2 + accel['y']**2 + accel['z']**2)
     shake_detected=False
     if abs(magnitude - prev_magnitude) > threshold:
-        print("Shake detected! Toggling play.")
         shake_detected=True
     return shake_detected
 
@@ -55,12 +54,14 @@ def main():
     while True:
         accel = mpu.get_accel_data()
         x_angle = get_x_angle(accel)
-        y_angle = get_y_angle(accel)    
+        y_angle = get_y_angle(accel)  
+        shake_detected = detect_shake_and_toggle_play() 
 
         # Log raw accelerometer data and calculated angle
         print(f"[{datetime.datetime.now()}] Accel: x={accel['x']:.2f}, y={accel['y']:.2f}, z={accel['z']:.2f} | X-Angle: {x_angle:.2f}, Y-Angle: {y_angle:.2f}")
 
-        if detect_shake_and_toggle_play():
+        if shake_detected:
+            print(f"[{datetime.datetime.now()}] Shake Detected!!!")
             spotycon.btn_toggleplay()
         elif x_angle >= ROTATION_THRESHOLD and (last_x_state != "back"):
             print(f"[{datetime.datetime.now()}] State change: Moved +{ROTATION_THRESHOLD} degrees (back)")
