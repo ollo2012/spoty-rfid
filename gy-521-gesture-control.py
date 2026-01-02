@@ -46,7 +46,15 @@ def main():
         elif x_angle <= -ROTATION_THRESHOLD and (last_x_state != "forward"):
             print(f"[{datetime.datetime.now()}] State change: Moved -{ROTATION_THRESHOLD} degrees (forward)")
             last_x_state = "forward"
-            time.sleep(0.8)
+            # Increase volume as long as state is forward
+            while True:
+                spotycon.btn_volUp()
+                time.sleep(0.2)
+                accel = mpu.get_accel_data()
+                x_angle = get_x_angle(accel)
+                if x_angle > -ROTATION_THRESHOLD:
+                    break
+            time.sleep(0.2)
         elif -ROTATION_THRESHOLD < x_angle < ROTATION_THRESHOLD and last_x_state is not None:
             print(f"[{datetime.datetime.now()}] State reset: Returned to neutral position")
             last_x_state = None
