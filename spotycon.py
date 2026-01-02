@@ -111,7 +111,7 @@ def do_play(spotify_uri):
 def btn_volUp():
     global volumecurrent
     if volumecurrent < 100:
-        volumecurrent += 10
+        volumecurrent += 5
         spc = connect()
         spc.volume(volumecurrent,device_id=DEVICE_ID)
         logging.info('Volume now at ' + str(volumecurrent))
@@ -119,7 +119,7 @@ def btn_volUp():
 def btn_volDown():
     global volumecurrent
     if volumecurrent > 0:
-        volumecurrent -= 10
+        volumecurrent -= 5
         spc = connect()
         spc.volume(volumecurrent,device_id=DEVICE_ID)
         logging.info('Volume now at ' + str(volumecurrent))
