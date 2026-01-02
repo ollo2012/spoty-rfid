@@ -114,7 +114,7 @@ def btn_volUp():
         volumecurrent += 10
         spc = connect()
         spc.volume(volumecurrent,device_id=DEVICE_ID)
-        logging.info('Volume now at '+ volumecurrent)
+        logging.info('Volume now at ' + str(volumecurrent))
 
 def btn_volDown():
     global volumecurrent
@@ -122,7 +122,7 @@ def btn_volDown():
         volumecurrent -= 10
         spc = connect()
         spc.volume(volumecurrent,device_id=DEVICE_ID)
-        logging.info('Volume now at ' + volumecurrent)
+        logging.info('Volume now at ' + str(volumecurrent))
 
 def btn_tracknext():
     spc = connect()
