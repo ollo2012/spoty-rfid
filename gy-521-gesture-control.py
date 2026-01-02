@@ -54,7 +54,7 @@ def main():
         elif y_angle >= ROTATION_THRESHOLD and (last_y_state != "left"):
             print(f"[{datetime.datetime.now()}] State change: Moved +{ROTATION_THRESHOLD} degrees (left)")
             last_y_state = "left"
-            spotycon.btn_trackprevious()
+            spotycon.btn_trackprev()
             time.sleep(0.8)
         elif y_angle <= -ROTATION_THRESHOLD and (last_y_state != "right"):
             print(f"[{datetime.datetime.now()}] State change: Moved -{ROTATION_THRESHOLD} degrees (right)")
