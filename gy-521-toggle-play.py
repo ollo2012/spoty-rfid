@@ -1,6 +1,6 @@
 import mpu6050
 import time
-import spoticon
+import spotycon
 
 # Config
 ROTATION_THRESHOLD = 50
@@ -47,33 +47,33 @@ def main():
         elif x_angle <= -ROTATION_THRESHOLD and (last_x_state != "forward"):
             print(f"[{datetime.datetime.now()}] State change: Moved -{ROTATION_THRESHOLD} degrees (forward)")
             last_x_state = "forward"
-	        current_rotation = "forward"
+            current_rotation = "forward"
             time.sleep(0.8)
         elif -ROTATION_THRESHOLD < x_angle < ROTATION_THRESHOLD and last_x_state is not None:
             print(f"[{datetime.datetime.now()}] State reset: Returned to neutral position")
             last_x_state = None
-	        current_rotation = None
+            current_rotation = None
             time.sleep(0.2)
         elif y_angle >= ROTATION_THRESHOLD and (last_y_state != "left"):
             print(f"[{datetime.datetime.now()}] State change: Moved +{ROTATION_THRESHOLD} degrees (left)")
             last_y_state = "left"
-	        current_rotation= "left"
+            current_rotation= "left"
             time.sleep(0.8)
         elif y_angle <= -ROTATION_THRESHOLD and (last_y_state != "right"):
             print(f"[{datetime.datetime.now()}] State change: Moved -{ROTATION_THRESHOLD} degrees (right)")
             last_y_state = "right"
-	        current_rotation = "right"
+            current_rotation = "right"
             time.sleep(0.8)
         elif -ROTATION_THRESHOLD < y_angle < ROTATION_THRESHOLD and last_y_state is not None:
             print(f"[{datetime.datetime.now()}] State reset: Returned to neutral position")
             last_y_state = None
-	        current_rotation = None
+            current_rotation = None
             time.sleep(0.2)
 
         time.sleep(0.1)
-        
+
 def toggle():
-    if current_rotation is "back":
+    if current_rotation == "back":
         spoticon.play_pause()
     elif current_rotation is "right":
         spoticon.next()
