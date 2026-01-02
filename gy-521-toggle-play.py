@@ -4,7 +4,7 @@ import spotycon
 
 # Config
 ROTATION_THRESHOLD = 50
-SHAKE_THRESHOLD = 2.5  # g-force change to detect shake
+SHAKE_THRESHOLD = 4.0   # g-force change to detect shake
 DETECTION_SLEEPTIME = 0.5  # seconds between shake detection checks
 
 # Create a new Mpu6050 object
