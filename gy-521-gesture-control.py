@@ -1,102 +1,72 @@
-#!/usr/bin/env python3
-
-from mpu6050 import mpu6050
+import mpu6050
 import time
-import os
-import math
+import spotycon
 
-sensor = mpu6050(0x68)
+# Config
+ROTATION_THRESHOLD = 50
+# current_rotation = None
+# Create a new Mpu6050 object
+mpu = mpu6050.mpu6050(0x68)
 
-# ---------------- CONFIG ----------------
+def get_x_angle(accel_data):
+    # Calculate the angle of the X axis in degrees
+    from math import atan2, degrees, sqrt
+    x = accel_data['x']
+    y = accel_data['y']
+    z = accel_data['z']
+    angle = degrees(atan2(x, sqrt(y**2 + z**2)))
+    return angle
 
-SHAKE_THRESHOLD = 4.5        # g change
-ROTATE_FAST = 180.0          # deg/s
-ROTATE_SLOW = 80.0           # deg/s
-COOLDOWN = 0.8
-LOOP_DELAY = 0.05
+def get_y_angle(accel_data):
+    # Calculate the angle of the X axis in degrees
+    from math import atan2, degrees, sqrt
+    x = accel_data['x']
+    y = accel_data['y']
+    z = accel_data['z']
+    angle = degrees(atan2(y, sqrt(x**2 + z**2)))
+    return angle
 
-# ----------------------------------------
+def main():
+    import datetime
+    last_x_state = None
+    last_y_state = None
+    while True:
+        accel = mpu.get_accel_data()
+        x_angle = get_x_angle(accel)
+        y_angle = get_y_angle(accel)    
 
-last_action = 0
-last_mag = 0
+        # Log raw accelerometer data and calculated angle
+        print(f"[{datetime.datetime.now()}] Accel: x={accel['x']:.2f}, y={accel['y']:.2f}, z={accel['z']:.2f} | X-Angle: {x_angle:.2f}, Y-Angle: {y_angle:.2f}")
 
-def cooldown_ok():
-    global last_action
-    if time.time() - last_action > COOLDOWN:
-        last_action = time.time()
-        return True
-    return False
+        if x_angle >= ROTATION_THRESHOLD and (last_x_state != "back"):
+            print(f"[{datetime.datetime.now()}] State change: Moved +{ROTATION_THRESHOLD} degrees (back)")
+            last_x_state = "back"
+            spotycon.btn_toggleplay()
+            time.sleep(0.8)
+        elif x_angle <= -ROTATION_THRESHOLD and (last_x_state != "forward"):
+            print(f"[{datetime.datetime.now()}] State change: Moved -{ROTATION_THRESHOLD} degrees (forward)")
+            last_x_state = "forward"
+            time.sleep(0.8)
+        elif -ROTATION_THRESHOLD < x_angle < ROTATION_THRESHOLD and last_x_state is not None:
+            print(f"[{datetime.datetime.now()}] State reset: Returned to neutral position")
+            last_x_state = None
+            time.sleep(0.8)
+        elif y_angle >= ROTATION_THRESHOLD and (last_y_state != "left"):
+            print(f"[{datetime.datetime.now()}] State change: Moved +{ROTATION_THRESHOLD} degrees (left)")
+            last_y_state = "left"
+            spotycon.btn_trackprevious()
+            time.sleep(0.8)
+        elif y_angle <= -ROTATION_THRESHOLD and (last_y_state != "right"):
+            print(f"[{datetime.datetime.now()}] State change: Moved -{ROTATION_THRESHOLD} degrees (right)")
+            last_y_state = "right"
+            spotycon.btn_tracknext()
+            time.sleep(0.8)
+        elif -ROTATION_THRESHOLD < y_angle < ROTATION_THRESHOLD and last_y_state is not None:
+            print(f"[{datetime.datetime.now()}] State reset: Returned to neutral position")
+            last_y_state = None
+            time.sleep(0.8)
 
-# ---- Music control ----
+        time.sleep(0.1)
 
-def cmd(c):
-    os.system("mpc " + c)
-
-def volume_up():
-    cmd("volume +5")
-    print("Volume +")
-
-def volume_down():
-    cmd("volume -5")
-    print("Volume -")
-
-def next_track():
-    cmd("next")
-    print("Next")
-
-def prev_track():
-    cmd("prev")
-    print("Previous")
-
-def toggle():
-    cmd("toggle")
-    print("Play/Pause")
-
-# ---- Motion processing ----
-
-def accel_magnitude(a):
-    return math.sqrt(a['x']**2 + a['y']**2 + a['z']**2)
-
-def max_rotation(g):
-    return max(abs(g['x']), abs(g['y']), abs(g['z']))
-
-# ---- Main loop ----
-
-print("Orientation-independent music box running")
-
-while True:
-    try:
-        accel = sensor.get_accel_data()
-        gyro = sensor.get_gyro_data()
-
-        mag = accel_magnitude(accel)
-        delta = abs(mag - last_mag)
-        last_mag = mag
-
-        rot = max_rotation(gyro)
-
-        if cooldown_ok():
-
-            # Shake → Play / Pause
-            if delta > SHAKE_THRESHOLD:
-                toggle()
-
-            # Fast rotation → Skip
-            elif rot > ROTATE_FAST:
-                if gyro['z'] > 0:
-                    next_track()
-                else:
-                    prev_track()
-
-            # Slow rotation → Volume
-            elif rot > ROTATE_SLOW:
-                if gyro['z'] > 0:
-                    volume_up()
-                else:
-                    volume_down()
-
-        time.sleep(LOOP_DELAY)
-
-    except KeyboardInterrupt:
-        print("\nStopped")
-        break
+if __name__ == "__main__":
+    main()
