@@ -44,7 +44,7 @@ def main():
              # Decrease volume as long as state is forward
             while True:
                 spotycon.btn_volDown()
-                time.sleep(0.2)
+                time.sleep(0.5)
                 accel = mpu.get_accel_data()
                 x_angle = get_x_angle(accel)
                 if x_angle < ROTATION_THRESHOLD:
@@ -56,7 +56,7 @@ def main():
             # Increase volume as long as state is forward
             while True:
                 spotycon.btn_volUp()
-                time.sleep(0.2)
+                time.sleep(0.5)
                 accel = mpu.get_accel_data()
                 x_angle = get_x_angle(accel)
                 if x_angle > -ROTATION_THRESHOLD:
