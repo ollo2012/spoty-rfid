@@ -47,7 +47,7 @@ def main():
                 time.sleep(0.2)
                 accel = mpu.get_accel_data()
                 x_angle = get_x_angle(accel)
-                if x_angle > ROTATION_THRESHOLD:
+                if x_angle < ROTATION_THRESHOLD:
                     break
             time.sleep(0.2)
         elif x_angle <= -ROTATION_THRESHOLD and (last_x_state != "forward"):
