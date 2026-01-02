@@ -41,8 +41,15 @@ def main():
         if x_angle >= ROTATION_THRESHOLD and (last_x_state != "back"):
             print(f"[{datetime.datetime.now()}] State change: Moved +{ROTATION_THRESHOLD} degrees (back)")
             last_x_state = "back"
-            spotycon.btn_toggleplay()
-            time.sleep(0.8)
+             # Decrease volume as long as state is forward
+            while True:
+                spotycon.btn_volDown()
+                time.sleep(0.2)
+                accel = mpu.get_accel_data()
+                x_angle = get_x_angle(accel)
+                if x_angle > ROTATION_THRESHOLD:
+                    break
+            time.sleep(0.2)
         elif x_angle <= -ROTATION_THRESHOLD and (last_x_state != "forward"):
             print(f"[{datetime.datetime.now()}] State change: Moved -{ROTATION_THRESHOLD} degrees (forward)")
             last_x_state = "forward"
