@@ -29,23 +29,30 @@ def get_y_angle(accel_data):
     return angle
 
 # Function to detect shake and call btn_toggleplay()
-def detect_shake_and_toggle_play(threshold=SHAKE_THRESHOLD, sleeptime=DETECTION_SLEEPTIME):
+def detect_shake_and_toggle_play(threshold=SHAKE_THRESHOLD, window_time=0.4, sample_rate=0.02):
     """
-    Detects a shake by checking for sudden large changes in acceleration.
-    Calls spotycon.btn_toggleplay() if a shake is detected.
+    Detects a shake by sampling acceleration magnitude in a rolling window.
+    Returns True if a sudden spike is detected in the window.
     threshold: minimum g-force change to consider as shake
-    sleeptime: time in seconds to check for shake
+    window_time: total time window to sample (seconds)
+    sample_rate: time between samples (seconds)
     """
     import math
-    prev_accel = mpu.get_accel_data()
-    prev_magnitude = math.sqrt(prev_accel['x']**2 + prev_accel['y']**2 + prev_accel['z']**2)
-    time.sleep(sleeptime)
-    accel = mpu.get_accel_data()
-    magnitude = math.sqrt(accel['x']**2 + accel['y']**2 + accel['z']**2)
-    shake_detected=False
-    if abs(magnitude - prev_magnitude) > threshold:
-        shake_detected=True
-    return shake_detected
+    import collections
+    num_samples = int(window_time / sample_rate)
+    magnitudes = collections.deque(maxlen=num_samples)
+    for _ in range(num_samples):
+        accel = mpu.get_accel_data()
+        magnitude = math.sqrt(accel['x']**2 + accel['y']**2 + accel['z']**2)
+        magnitudes.append(magnitude)
+        time.sleep(sample_rate)
+    # Subtract gravity (1g) to focus on dynamic acceleration
+    magnitudes = [abs(mag - 9.8) for mag in magnitudes]
+    # Detect if any value exceeds threshold
+    for mag in magnitudes:
+        if mag > threshold:
+            return True
+    return False
 
 def main():
     import datetime
