@@ -34,7 +34,7 @@ def detect_shake_and_toggle_play(threshold=SHAKE_THRESHOLD, sleeptime=DETECTION_
     Detects a shake by checking for sudden large changes in acceleration.
     Calls spotycon.btn_toggleplay() if a shake is detected.
     threshold: minimum g-force change to consider as shake
-    window: time window in seconds to check for shake
+    sleeptime: time in seconds to check for shake
     """
     import math
     prev_accel = mpu.get_accel_data()
@@ -62,11 +62,9 @@ def main():
 
         if detect_shake_and_toggle_play():
             spotycon.btn_toggleplay()
-            time.sleep(0.8)  # Debounce time after shake detection
         elif x_angle >= ROTATION_THRESHOLD and (last_x_state != "back"):
             print(f"[{datetime.datetime.now()}] State change: Moved +{ROTATION_THRESHOLD} degrees (back)")
             last_x_state = "back"
-            spotycon.btn_toggleplay()
             time.sleep(0.8)
         elif x_angle <= -ROTATION_THRESHOLD and (last_x_state != "forward"):
             print(f"[{datetime.datetime.now()}] State change: Moved -{ROTATION_THRESHOLD} degrees (forward)")
