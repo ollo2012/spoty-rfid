@@ -1,3 +1,4 @@
+#!/home/pi/spoty-rfid/venv/bin/python3
 import mpu6050
 import time
 import spotycon
