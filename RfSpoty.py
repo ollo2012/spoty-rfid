@@ -1,5 +1,5 @@
-#!/usr/bin/env python3
-
+#!/home/pi/spoty-rfid/venv/bin/python3
+import config
 import sys
 import time
 
@@ -52,8 +52,14 @@ def rfidusb():
                     rfID = str(newCode[::2]) # [::2] -> remove every second char
                     if(len(rfID) > 0):
                         print(rfID)
-                        spotycon.card_react(rfID)
+                        spotycon.card_react_usb(rfID)
                     # reset code
                     newCode = ''
 
-rfidusb()
+if config.RFID_TYPE=='usb':
+    rfidusb()
+elif config.RFID_TYPE=='rc522':
+    while True:
+        spotycon.card_react_rc522()
+else:
+    print("No valid RFID_TYPE selected in config.py !options: 'usb' or 'rc522'") 

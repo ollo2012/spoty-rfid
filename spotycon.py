@@ -66,8 +66,7 @@ def box_is_active(spc):
     restart_box()
     return True
 
-def card_react(cardID):
-
+def card_react_usb(cardID):
     # get dict (getting it late -> you can make changes anytime)
     d = {}
     with open("cards.txt") as f:
@@ -98,6 +97,18 @@ def card_react(cardID):
             do_play(d[cardID])
     else:
         logging.warning("Add {!r} to your cards.txt".format(cardID))
+
+def card_react_rc522():
+    import RPi.GPIO as GPIO
+    from mfrc522 import SimpleMFRC522
+    reader = SimpleMFRC522()
+    _id, text = reader.read()
+    # Ectract the URI from Output
+    spotify_uri = text.strip()
+    do_play(spotify_uri)
+    GPIO.cleanup()
+    # brief pause to avoid Error from multiple reads      
+    time.sleep(1.0)
 
 def do_play(spotify_uri):
     spc = connect()
